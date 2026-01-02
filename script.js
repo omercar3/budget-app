@@ -6,8 +6,10 @@ const categorySelect = document.getElementById('expense-category');
 const typeInputs = document.querySelectorAll('input[name="type"]');
 
 // Chart Controls
+// Chart Controls
 const btnViewPie = document.getElementById('view-pie');
 const btnViewLine = document.getElementById('view-line');
+// btnExport moved to setupEventListeners to ensure existence
 const timeFilters = document.getElementById('time-filters');
 const filterBtns = document.querySelectorAll('.filter-btn');
 
@@ -93,6 +95,13 @@ function setupEventListeners() {
     // Chart Mode Switching
     if (btnViewPie) btnViewPie.addEventListener('click', () => switchChartType('pie'));
     if (btnViewLine) btnViewLine.addEventListener('click', () => switchChartType('line'));
+
+    const btnExport = document.getElementById('btn-export');
+    if (btnExport) {
+        btnExport.addEventListener('click', exportToCSV);
+    } else {
+        console.error('Export button not found in DOM');
+    }
 
     // Time Filters
     filterBtns.forEach(btn => {
@@ -205,10 +214,6 @@ function addExpense(e) {
 
     // Retain type selection functionality visually
     setTimeout(() => {
-        // Find the input that corresponds to current type (it might be reset)
-        // Actually, let's just make sure the correct options are shown.
-        // If form reset clears radio, we might need to re-check.
-        // Default is usually expense checked in HTML.
         const checked = document.querySelector('input[name="type"]:checked');
         if (checked) checked.dispatchEvent(new Event('change'));
     }, 0);
@@ -230,6 +235,49 @@ function deleteExpense(id) {
         renderExpenses();
         renderChart();
     }
+}
+
+function exportToCSV() {
+    if (!expenses || expenses.length === 0) {
+        alert('אין נתונים לייצוא');
+        return;
+    }
+
+    // Hebew Headers
+    const headers = ['תאריך', 'סוג', 'קטגוריה', 'תיאור', 'סכום'];
+
+    // Convert data to CSV
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+
+    expenses.forEach(exp => {
+        const dateStr = exp.date;
+        const typeStr = exp.type === 'income' ? 'הכנסה' : 'הוצאה';
+        const categoryStr = getCategoryName(exp.category).replace(/"/g, '""');
+        const nameStr = exp.name.replace(/"/g, '""');
+
+        const row = [
+            dateStr,
+            typeStr,
+            `"${categoryStr}"`,
+            `"${nameStr}"`,
+            exp.amount
+        ];
+        csvRows.push(row.join(','));
+    });
+
+    const csvString = csvRows.join('\n');
+    const bom = '\uFEFF';
+    const blob = new Blob([bom + csvString], { type: 'text/csv;charset=utf-8;' });
+
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'budget_backup.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 function renderExpenses() {
@@ -328,9 +376,6 @@ function renderPieChart() {
                 },
                 datalabels: {
                     color: '#000000',
-                    // backgroundColor removed
-                    // borderRadius removed
-                    // padding removed
                     font: { weight: 'bold', size: 12 },
                     anchor: 'center',
                     align: 'center',
