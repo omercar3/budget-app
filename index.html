@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מעקב תקציב אישי</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <h1>מעקב תקציב אישי</h1>
+    </header>
+
+    <div class="container">
+
+        <div class="card form-card">
+            <h2>הוספת תנועה</h2>
+            <form id="expense-form">
+
+                <div class="form-group type-toggle-group">
+                    <label>סוג תנועה</label>
+                    <div class="type-toggle">
+                        <input type="radio" id="type-expense" name="type" value="expense" checked>
+                        <label for="type-expense" class="toggle-btn toggle-expense">הוצאה</label>
+
+                        <input type="radio" id="type-income" name="type" value="income">
+                        <label for="type-income" class="toggle-btn toggle-income">הכנסה</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="expense-name">שם</label>
+                    <input type="text" id="expense-name" required placeholder="תיאור קצר">
+                </div>
+
+                <div class="form-group">
+                    <label for="expense-amount">סכום (₪)</label>
+                    <input type="number" id="expense-amount" required min="0" step="0.1" placeholder="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="expense-category">קטגוריה</label>
+                    <select id="expense-category" required>
+                        <!-- Options populated by JS -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="expense-date">תאריך</label>
+                    <input type="date" id="expense-date" required>
+                </div>
+
+                <button type="submit" class="btn-submit">שמור</button>
+            </form>
+        </div>
+
+        <div class="stats-card card">
+            <div class="chart-header">
+                <h2>נתונים</h2>
+                <div class="chart-controls">
+                    <button id="view-pie" class="chart-btn active">התפלגות</button>
+                    <button id="view-line" class="chart-btn">לאורך זמן</button>
+                </div>
+            </div>
+
+            <div id="time-filters" class="time-filters hidden">
+                <button data-period="7d" class="filter-btn active">שבוע</button>
+                <button data-period="30d" class="filter-btn">חודש</button>
+                <button data-period="90d" class="filter-btn">3 חודשים</button>
+                <button data-period="180d" class="filter-btn">חצי שנה</button>
+                <button data-period="365d" class="filter-btn">שנה</button>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="expenses-chart"></canvas>
+            </div>
+        </div>
+
+        <div class="list-card card">
+            <h2>רשימת הוצאות</h2>
+            <div class="table-container">
+                <table id="expenses-table">
+                    <thead>
+                        <tr>
+                            <th>שם</th>
+                            <th>סכום</th>
+                            <th>קטגוריה</th>
+                            <th>תאריך</th>
+                            <th>פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expenses-list">
+                        <!-- Expenses will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
