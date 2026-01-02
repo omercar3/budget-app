@@ -270,13 +270,23 @@ function exportToCSV() {
     const bom = '\uFEFF';
     const blob = new Blob([bom + csvString], { type: 'text/csv;charset=utf-8;' });
 
-    const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
+    const filename = `budget_backup_${Date.now()}.csv`;
+
+    const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', 'budget_backup.csv');
+    link.setAttribute('download', filename);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
-    link.click();
+
+    try {
+        link.click();
+    } catch (err) {
+        console.error('Download link click failed', err);
+        // Fallback
+        window.open(url, '_blank');
+    }
+
     document.body.removeChild(link);
 }
 
